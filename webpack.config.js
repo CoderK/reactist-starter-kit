@@ -1,19 +1,53 @@
-var path = require('path');
+'use strict';
+
+const path = require('path');
+const webpack = require("webpack");
+
+let envIndex = process.argv.indexOf("--env");
+let env = null;
+let outputFilename = "bundle.js";
+
+if (envIndex > -1) {
+    env = process.argv[envIndex + 1];
+}
+
+if(env === "production"){
+    outputFilename = "bundle.min.js";
+}
 
 module.exports = {
     entry: path.resolve(__dirname, 'src/index.js'),
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        filename: outputFilename
     },
-
+    devtool: env === "production" ? false : 'inline-source-map',
+    devServer: {
+        contentBase: "./dev-server"
+    },
     module: {
         loaders: [
             {
-                test: /src\/.+.js$/,
-                exclude: /node_modules/,
-                loader: 'babel'
+                test: /(\.jsx|\.js)$/,
+                exclude: /(node_modules|bower_components)/,
+                loader: ['babel-loader'],
+                query: {
+                    presets: ['es2015', 'react', 'airbnb']
+                }
             }
         ]
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env': {
+                'NODE_ENV': env
+            }
+        })
+    ],
+    externals: {
+        'cheerio': 'window',
+        'react/addons': true,
+        'react/lib/ExecutionEnvironment': true,
+        'react/lib/ReactContext': true
     }
 };
