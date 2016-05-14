@@ -5,7 +5,11 @@ import { createStore } from 'redux'
 import todoApp from './reducers'
 import App from './containers/App'
 
-let store = createStore(todoApp);
+const store = createStore(
+    todoApp,
+    {},
+    window.devToolsExtension ? window.devToolsExtension() : undefined
+);
 
 render(
     <Provider store={store}>
